@@ -1,0 +1,27 @@
+*.*
+!*.css
+!*.js
+!*.mjs
+!*.json
+!*.jsx
+!*.less
+!*.mdx
+!*.ts
+!*.tsx
+!*.yml
+!*.yaml
+
+# Add files here to ignore them from prettier formatting
+
+/build
+/dist
+/node_modules
+
+# Testing
+coverage*
+reports*
+
+# Misc
+.DS_Store
+.eslintrc.json
+.vscode
