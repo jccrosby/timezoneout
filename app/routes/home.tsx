@@ -13,7 +13,8 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-    const [selectedDate, setSelectedDate] = useState<string>(getDefaultDate());
+    const [serviceUrl, setServiceUrl] = useState<string>('');
+    const [selectedDate, setSelectedDate] = useState<string | undefined>();
     const [selectedTimezone, setSelectedTimezone] = useState<string | undefined>(undefined);
 
     // Read URL parameters on initial load
@@ -50,6 +51,10 @@ export default function Home() {
         window.history.replaceState({}, '', newUrl);
     }, [selectedDate, selectedTimezone]);
 
+    const handleServiceUrlChange = (url: string) => {
+        setServiceUrl(url);
+    };
+
     const handleDateChange = (date: string) => {
         setSelectedDate(date);
     };
@@ -67,7 +72,27 @@ export default function Home() {
                     onTimezoneChange={handleTimezoneChange}
                 />
             </div>
-            <BaseballSchedule selectedDate={selectedDate} timezone={selectedTimezone} />
+            <div className="mb-4 text-center">
+                <p className="text-md font-medium">
+                    Service URL:{' '}
+                    {serviceUrl ? (
+                        <a
+                            href={serviceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 hover:underline">
+                            {serviceUrl}
+                        </a>
+                    ) : (
+                        ''
+                    )}
+                </p>
+            </div>
+            <BaseballSchedule
+                selectedDate={selectedDate}
+                timezone={selectedTimezone}
+                onServiceUrlChange={handleServiceUrlChange}
+            />
         </div>
     );
 }

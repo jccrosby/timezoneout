@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 export type DatePickerProps = {
-    selectedDate: string;
+    selectedDate?: string;
     onDateChange: (date: string) => void;
 };
 

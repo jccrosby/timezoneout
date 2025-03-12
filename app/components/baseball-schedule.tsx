@@ -25,11 +25,16 @@ interface ScheduleData {
 }
 
 export type BaseballScheduleProps = {
+    onServiceUrlChange?: (url: string) => void;
     selectedDate?: string;
     timezone?: string; // Make timezone optional
 };
 
-export function BaseballSchedule({ selectedDate, timezone }: BaseballScheduleProps) {
+export function BaseballSchedule({
+    onServiceUrlChange,
+    selectedDate,
+    timezone,
+}: BaseballScheduleProps) {
     const [games, setGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -46,6 +51,8 @@ export function BaseballSchedule({ selectedDate, timezone }: BaseballSchedulePro
                 if (timezone) {
                     url += `&timezone=${timezone}`;
                 }
+
+                onServiceUrlChange?.(url);
 
                 const response = await fetch(url);
 
