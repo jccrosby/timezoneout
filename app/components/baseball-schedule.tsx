@@ -52,6 +52,8 @@ export function BaseballSchedule({
                     url += `&timezone=${timezone}`;
                 }
 
+                url += `&cachebuster=${Date.now()}`;
+
                 onServiceUrlChange?.(url);
 
                 const response = await fetch(url);
