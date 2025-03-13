@@ -1,9 +1,10 @@
-import type { Route } from './+types/home';
-import { BaseballSchedule } from '../components/baseball-schedule';
+import { useState } from 'react';
 import { DatePicker } from '~/components/date-picker';
 import { TimezonePicker } from '~/components/timezone-picker';
-import { useState, useEffect } from 'react';
-import { getDefaultDate, isValidTimezone, isValidDateFormat } from '~/utils/date-time';
+import type { ScheduleData } from '~/types';
+import { BaseballSchedule } from '../components/baseball-schedule';
+import type { Route } from './+types/home';
+import { useSearchParams } from 'react-router';
 
 export function meta({}: Route.MetaArgs) {
     return [
@@ -12,55 +13,63 @@ export function meta({}: Route.MetaArgs) {
     ];
 }
 
-export default function Home() {
-    const [serviceUrl, setServiceUrl] = useState<string>('');
-    const [selectedDate, setSelectedDate] = useState<string | undefined>();
-    const [selectedTimezone, setSelectedTimezone] = useState<string | undefined>(undefined);
+export async function loader(loaderArgs: Route.ClientLoaderArgs) {
+    const { request } = loaderArgs;
+    const url = new URL(request.url);
+    const searchParams = new URLSearchParams(url.search);
+    const date = searchParams.get('date');
+    const tz = searchParams.get('tz');
+    let serviceUrl = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&hydrate=team`;
+    if (date) {
+        serviceUrl += `&date=${date}`;
+    }
+    if (tz) {
+        serviceUrl += `&timezone=${tz}`;
+    }
 
-    // Read URL parameters on initial load
-    useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
+    const response = await fetch(serviceUrl);
 
-        // Handle date parameter
-        const dateParam = urlParams.get('date');
-        if (dateParam && isValidDateFormat(dateParam)) {
-            setSelectedDate(dateParam);
-        }
+    if (!response.ok) {
+        return {
+            success: false,
+            message: response.statusText,
+        };
+    }
 
-        // Handle timezone parameter
-        const timezoneParam = urlParams.get('tz');
-        if (timezoneParam && isValidTimezone(timezoneParam)) {
-            setSelectedTimezone(timezoneParam);
-        }
-    }, []);
+    const data: ScheduleData = await response.json();
+    //console.log(`*** data?.dates?.length`, data?.dates?.length);
 
-    // Update URL when selections change
-    useEffect(() => {
-        const urlParams = new URLSearchParams();
-
-        // Add date parameter
-        urlParams.set('date', selectedDate);
-
-        // Only add timezone if specified
-        if (selectedTimezone) {
-            urlParams.set('tz', selectedTimezone);
-        }
-
-        // Update URL without reloading the page
-        const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
-        window.history.replaceState({}, '', newUrl);
-    }, [selectedDate, selectedTimezone]);
-
-    const handleServiceUrlChange = (url: string) => {
-        setServiceUrl(url);
+    return {
+        success: true,
+        games: data.dates[0].games,
+        date,
+        tz,
+        serviceUrl,
     };
+}
+
+export function HydrateFallback() {
+    return (
+        <div className="container mx-auto px-4 py-6">
+            <div className="mb-4 text-center">
+                <p>Loading...</p>
+            </div>
+        </div>
+    );
+}
+
+export default function Home({ loaderData }: Route.ComponentProps) {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const { games, date, tz, serviceUrl } = loaderData;
+    const [selectedDate, setSelectedDate] = useState<string | undefined>(date || undefined);
+    const [selectedTimezone, setSelectedTimezone] = useState<string | undefined>(tz || undefined);
 
     const handleDateChange = (date: string) => {
-        setSelectedDate(date);
+        setSearchParams({ date: date, tz: selectedTimezone || '' });
     };
 
-    const handleTimezoneChange = (timezone: string | undefined) => {
-        setSelectedTimezone(timezone);
+    const handleTimezoneChange = (timezone: string) => {
+        setSearchParams({ date: selectedDate || '', tz: timezone || '' });
     };
 
     return (
@@ -89,9 +98,9 @@ export default function Home() {
                 </p>
             </div>
             <BaseballSchedule
+                games={games || []}
                 selectedDate={selectedDate}
-                timezone={selectedTimezone}
-                onServiceUrlChange={handleServiceUrlChange}
+                selectedTimezone={selectedTimezone}
             />
         </div>
     );

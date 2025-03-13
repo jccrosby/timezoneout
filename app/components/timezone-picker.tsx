@@ -2,15 +2,14 @@ import React from 'react';
 import { TIMEZONES } from '~/utils/date-time';
 
 interface TimezonePickerProps {
-    selectedTimezone: string | undefined;
-    onTimezoneChange: (timezone: string | undefined) => void;
+    selectedTimezone?: string;
+    onTimezoneChange: (timezone: string) => void;
 }
 
 export function TimezonePicker({ selectedTimezone, onTimezoneChange }: TimezonePickerProps) {
     const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const value = event.target.value;
-        // Pass undefined if "None" is selected, otherwise pass the selected value
-        onTimezoneChange(value === '' ? undefined : value);
+        onTimezoneChange(value);
     };
 
     return (

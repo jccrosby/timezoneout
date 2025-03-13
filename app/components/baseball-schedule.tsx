@@ -1,98 +1,21 @@
 import { useEffect, useState } from 'react';
-import { formatGameTime, TIMEZONES } from '~/utils/date-time';
+import type { Game } from '~/types';
+import { TIMEZONES } from '~/utils/date-time';
 import { DatetimeDisplay } from './datetime-display';
 
-interface Team {
-    team: {
-        name: string;
-        abbreviation: string;
-    };
-}
-
-interface Game {
-    teams: {
-        away: Team;
-        home: Team;
-    };
-    gameDate: string;
-    officialDate: string;
-}
-
-interface ScheduleData {
-    dates: Array<{
-        games: Game[];
-    }>;
-}
-
 export type BaseballScheduleProps = {
-    onServiceUrlChange?: (url: string) => void;
+    games: Game[];
     selectedDate?: string;
-    timezone?: string; // Make timezone optional
+    selectedTimezone?: string;
 };
 
-export function BaseballSchedule({
-    onServiceUrlChange,
-    selectedDate,
-    timezone,
-}: BaseballScheduleProps) {
-    const [games, setGames] = useState<Game[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchSchedule = async () => {
-            try {
-                setLoading(true);
-                // Build the URL with optional timezone parameter
-                let url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&hydrate=team`;
-                if (selectedDate) {
-                    url += `&date=${selectedDate}`;
-                }
-                if (timezone) {
-                    url += `&timezone=${timezone}`;
-                }
-
-                onServiceUrlChange?.(url);
-
-                const response = await fetch(url);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                const data: ScheduleData = await response.json();
-
-                if (data.dates && data.dates.length > 0) {
-                    setGames(data.dates[0].games || []);
-                } else {
-                    setGames([]);
-                }
-            } catch (err) {
-                setError('Failed to fetch baseball schedule');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchSchedule();
-    }, [selectedDate, timezone]);
-
-    if (loading) {
-        return <div className="flex justify-center items-center p-8">Loading schedule...</div>;
-    }
-
-    if (error) {
-        return <div className="text-red-500 p-8">Error: {error}</div>;
-    }
-
+export function BaseballSchedule({ games, selectedDate, selectedTimezone }: BaseballScheduleProps) {
     return (
         <div className="p-5 font-sans">
             {games.length === 0 ? (
                 <div className="p-4 text-gray-500">No games scheduled for {selectedDate}</div>
             ) : (
                 <>
-                    {/* Add game count display */}
                     <div className="mb-4 text-center">
                         <p className="text-md font-semibold">Games: {games.length}</p>
                     </div>
@@ -106,10 +29,10 @@ export function BaseballSchedule({
                                     {game.teams.away.team.abbreviation} @{' '}
                                     {game.teams.home.team.abbreviation}
                                 </h3>
-                                {timezone ? (
+                                {selectedTimezone ? (
                                     <p className="mt-2 text-sm">
                                         <span className="font-bold">Selected Timezone:</span>{' '}
-                                        {timezone}
+                                        {selectedTimezone}
                                     </p>
                                 ) : (
                                     <p className="mt-2 text-sm">
