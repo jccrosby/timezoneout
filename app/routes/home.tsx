@@ -1,10 +1,10 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { DatePicker } from '~/components/date-picker';
 import { TimezonePicker } from '~/components/timezone-picker';
 import type { ScheduleData } from '~/types';
 import { BaseballSchedule } from '../components/baseball-schedule';
 import type { Route } from './+types/home';
-import { useSearchParams } from 'react-router';
 
 export function meta({}: Route.MetaArgs) {
     return [

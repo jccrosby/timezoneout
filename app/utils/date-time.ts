@@ -1,5 +1,5 @@
+import { format, parseISO } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
-import { parseISO, format } from 'date-fns';
 
 export const TIMEZONES = [
     // North America

@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import type { Game } from '~/types';
 import { TIMEZONES } from '~/utils/date-time';
 import { DatetimeDisplay } from './datetime-display';
