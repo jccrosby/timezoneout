@@ -5,6 +5,7 @@ import { TimezonePicker } from '~/components/timezone-picker';
 import type { ScheduleData } from '~/types';
 import { BaseballSchedule } from '../components/baseball-schedule';
 import type { Route } from './+types/home';
+import { getObjFromSearchParams } from '~/utils/url';
 
 export function meta({}: Route.MetaArgs) {
     return [
@@ -64,12 +65,16 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     const [selectedDate, setSelectedDate] = useState<string | undefined>(date || undefined);
     const [selectedTimezone, setSelectedTimezone] = useState<string | undefined>(tz || undefined);
 
+    console.log(`*** searchParams`, searchParams);
+    console.log(`*** date`, date);
+    console.log(`*** tz`, tz);
+
     const handleDateChange = (date: string) => {
-        setSearchParams({ date: date, tz: selectedTimezone || '' });
+        setSearchParams({ ...getObjFromSearchParams(searchParams), date });
     };
 
     const handleTimezoneChange = (timezone: string) => {
-        setSearchParams({ date: selectedDate || '', tz: timezone || '' });
+        setSearchParams({ ...getObjFromSearchParams(searchParams), tz: timezone });
     };
 
     return (
