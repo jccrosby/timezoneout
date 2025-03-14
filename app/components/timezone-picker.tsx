@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TIMEZONES } from '~/utils/date-time';
 
 interface TimezonePickerProps {
@@ -7,8 +7,10 @@ interface TimezonePickerProps {
 }
 
 export function TimezonePicker({ selectedTimezone, onTimezoneChange }: TimezonePickerProps) {
+    const [timezone, setTimezone] = useState(selectedTimezone);
     const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const value = event.target.value;
+        setTimezone(value);
         onTimezoneChange(value);
     };
 
@@ -19,7 +21,7 @@ export function TimezonePicker({ selectedTimezone, onTimezoneChange }: TimezoneP
             </label>
             <select
                 id="timezone-picker"
-                value={selectedTimezone || ''}
+                value={timezone || ''}
                 onChange={handleChange}
                 className="p-2 border border-gray-300 rounded-md bg-white">
                 <option value="">Default (No timezone selection)</option>
