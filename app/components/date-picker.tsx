@@ -66,6 +66,7 @@ export function DatePicker({ selectedDate, onDateChange }: DatePickerProps) {
 
             <div className="flex items-center">
                 <input
+                    data-testid="date-picker"
                     id="date-picker"
                     type="date"
                     value={date || ''}

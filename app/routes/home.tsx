@@ -38,11 +38,10 @@ export async function loader(loaderArgs: Route.ClientLoaderArgs) {
     }
 
     const data: ScheduleData = await response.json();
-    //console.log(`*** data?.dates?.length`, data?.dates?.length);
 
     return {
         success: true,
-        games: data.dates[0].games,
+        games: data.dates.length > 0 ? data.dates[0].games : [],
         date,
         tz,
         serviceUrl,
@@ -65,17 +64,16 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     const [selectedDate, setSelectedDate] = useState<string | undefined>(date || undefined);
     const [selectedTimezone, setSelectedTimezone] = useState<string | undefined>(tz || undefined);
 
-    console.log(`*** searchParams`, searchParams);
-    console.log(`*** date`, date);
-    console.log(`*** tz`, tz);
-
     const handleDateChange = (date: string) => {
+        setSelectedDate(date);
         setSearchParams({ ...getObjFromSearchParams(searchParams), date });
     };
 
     const handleTimezoneChange = (timezone: string) => {
+        setSelectedTimezone(timezone);
         setSearchParams({ ...getObjFromSearchParams(searchParams), tz: timezone });
     };
+
 
     return (
         <div className="container mx-auto px-4 py-6">
